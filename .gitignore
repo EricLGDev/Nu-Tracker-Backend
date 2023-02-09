@@ -19,6 +19,7 @@ docs/_build/
 .vscode
 config/
 .config
+config.cfg
 
 # Coverage reports
 htmlcov/
