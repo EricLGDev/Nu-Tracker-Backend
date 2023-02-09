@@ -14,7 +14,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Database
 
-app.config.from_pyfile('config.cfg')
+app.config.from_pyfile('config/config.cfg')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #Initialize Database
 
