@@ -1,14 +1,8 @@
 from flask import Flask
-from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
 from instance import Config
-from . import models
-from . import routes
-
-bcrypt = Bcrypt()
-jwt = JWTManager()
+from . import models, routes
+from .extensions import db, bcrypt, jwt
 
 def create_app():
     app = Flask(__name__)
@@ -17,14 +11,13 @@ def create_app():
     app.config.from_object(Config)
     
     # Initialize the database and migrations
-    models.db.init_app(app)
-    
-    from .models import User, CalorieIntake
+    db.init_app(app)
     migrate = Migrate(app, models.db)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    # def create_tables():
-    #     db.create_all()
+    
+    with app.app_context():
+        db.create_all()
     # Import and register the blueprints
     app.register_blueprint(routes.bp)
     
