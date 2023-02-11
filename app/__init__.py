@@ -3,9 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from instance import Config
-
-db = SQLAlchemy()
-migrate = Migrate()
+from . import models
+# db = SQLAlchemy()
+# migrate = Migrate()
 bcrypt = Bcrypt()
 
 def create_app():
@@ -15,10 +15,10 @@ def create_app():
     app.config.from_object(Config)
     
     # Initialize the database and migrations
-    db.init_app(app)
+    models.db.init_app(app)
     
     from .models import User, CalorieIntake
-    migrate.init_app(app, db)
+    migrate = Migrate(app, models.db)
     bcrypt.init_app(app)
 
     # def create_tables():
