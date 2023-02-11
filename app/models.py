@@ -5,6 +5,7 @@ db = SQLAlchemy()
 
 class User(db.Model):
 
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -15,6 +16,9 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 class CalorieIntake(db.Model):
+
+    __tablename__ = 'calorie_intake'
+    
     id = db.Column(db.Integer, primary_key=True)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
     food = db.Column(db.String(80), nullable=False)
