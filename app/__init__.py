@@ -10,14 +10,14 @@ def create_app():
     app = Flask(__name__)
     
     # Load the configuration from the instance folder
-    app.config.from_pyfile('config.py')
+    app.config.from_object(Config)
     
     # Initialize the database and migrations
     db.init_app(app)
     migrate.init_app(app, db)
     
     # Import and register the blueprints
-    from app.routes import bp
-    app.register_blueprint(bp)
+    # from app.routes import bp
+    # app.register_blueprint(bp)
     
     return app
