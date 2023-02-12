@@ -12,6 +12,9 @@ flask-cors = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 flask-migrate = "*"
+flask-bcrypt = "*"
+flask-script = "*"
+flask-restful = "*"
 
 [dev-packages]
 
