@@ -39,10 +39,11 @@ def login():
     # Check if the user exists and the password is correct
     if user and bcrypt.check_password_hash(user.password, password):
         # Create a JWT token for the user
-        access_token = jwt.encode({"username": user.username}, "secret", algorithm="HS256")
+        access_token = create_access_token(identity=user.username)
+
         
         # Return the token and a success response
-        return jsonify({"access_token": access_token.decode("utf-8")}), 200
+        return jsonify({"access_token": access_token}), 200
     else:
         # Return an error response
         return jsonify({"message": "Invalid username or password"}), 401

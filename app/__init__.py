@@ -12,7 +12,7 @@ def create_app():
     
     # Initialize the database and migrations
     db.init_app(app)
-    migrate = Migrate(app, models.db)
+    migrate = Migrate(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
     
