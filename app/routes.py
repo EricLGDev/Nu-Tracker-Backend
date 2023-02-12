@@ -20,7 +20,6 @@ def register():
     # Create a new user
     user = User(username=username, email=email, password=hashed_password)
     
-
     # Add the user to the database
     db.session.add(user)
     db.session.commit()
@@ -60,6 +59,7 @@ def login():
 @bp.route("/dashboard", methods=["GET"])
 @jwt_required()
 def dashboard():
+
     # Get the current user's identity (their username)
     current_user = get_jwt_identity()
     
@@ -89,17 +89,8 @@ def addmacros():
         return jsonify({'message': 'invalid data'}), 400
 
     new_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat, sodium=sodium)
-
-    # new_food = Food(
-    #         name=food_name,
-    #         proteins=proteins, 
-    #         carbs=carbs, 
-    #         fats=fats
-    #     )
     
     db.session.add(new_food)
     db.session.commit()
     return jsonify({'message': 'worked'}), 201
     
-
-    # return f'<h1> { food_name } - { proteins } - { carbs } - { fats }</h1>'
