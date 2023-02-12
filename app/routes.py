@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from app.extensions import db, bcrypt, jwt
-from app.models import User
+from app.models import User, CalorieIntake
+# from app.utils import BLACKLIST
 
 bp = Blueprint("routes", __name__)
 
@@ -47,3 +48,30 @@ def login():
     else:
         # Return an error response
         return jsonify({"message": "Invalid username or password"}), 401
+
+# @bp.route("/logout", methods=["POST"])
+# @jwt_required
+# def logout():
+#     jti = get_jwt_identity()
+#     BLACKLIST.add(jti)
+#     return jsonify({"message": "Successfully logged out"}), 200
+
+@bp.route("/dashboard", methods=["GET"])
+@jwt_required
+def dashboard():
+    # Get the identity of the user from the JWT token
+    current_user = get_jwt_identity()
+    
+    # Find the user in the database
+    user = User.query.filter_by(username=current_user).first()
+    
+    # Check if the user exists
+    if user:
+        # Retrieve the user's calorie data
+        calorie_data = user.calorie_data
+        
+        # Return the calorie data and a success response
+        return jsonify({"calorie_data": calorie_data}), 200
+    else:
+        # Return an error response
+        return jsonify({"message": "User not found"}), 404

@@ -1,1 +1,1 @@
-blacklist = set()
+BLACKLIST = set()
