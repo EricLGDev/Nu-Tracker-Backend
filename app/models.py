@@ -15,6 +15,7 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 class CalorieIntake(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     date = db.Column(db.Date, nullable=False)
