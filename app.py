@@ -2,13 +2,12 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
-from models import db, UserModel, CalorieIntakeModel, MacroModel
-import config
-
+from sqlalchemy.sql import text
 
 
 import os
 
+db = SQLAlchemy()
 
 # Initialize App
 app = Flask(__name__)
@@ -22,6 +21,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
+
+
 # Initialize Marshmallow
 ma = Marshmallow
 
@@ -30,6 +31,7 @@ from routes.views import views
 from routes.macros import macros
 from routes.diary import diary
 from routes.auth import auth
+
 
 #import databases
 
@@ -43,11 +45,12 @@ app.register_blueprint(auth, url_prefix='/')
 #creating database
 
 
-# Run Server
+# this route will test the database connection and nothing more
+
 if __name__ == '__main__':
     app.run(debug=True)
 
 # Test Route for Postman; delete later
-@app.route('/', methods=['GET'])
-def get():
-    return jsonify({ 'msg': 'Test success'})
+#@app.route('/', methods=['GET'])
+#def get():
+    #return jsonify({ 'msg': 'Test success'})

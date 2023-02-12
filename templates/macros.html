@@ -2,5 +2,28 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1> This is the macros page</h1>
+<form method = "POST">
+    <h3 align="center">Add Macros</h3>
+    <div class="form-group">
+        <label for="food">Food</label>
+        <input type="food" class="form-control" id="food" name="food" placeholder="Enter food">
+    </div>
+    <div>
+        <label for="calories">Calories</label>
+        <input type="calories" class="form-control" id="calories" name="calories" placeholder="Enter calories">
+    </div>
+    <div>
+        <label for="protein">Protein</label>
+        <input type="protein" class="form-control" id="protein" name="protein" placeholder="Enter protein">
+    </div><div>
+        <label for="carbs">Carbs</label>
+        <input type="carbs" class="form-control" id="carbs" name="carbs" placeholder="Enter carbs">
+    </div><div>
+        <label for="fat">Fat</label>
+        <input type="fat" class="form-control" id="fat" name="fat" placeholder="Enter fat">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">submit</button>
+</form>
 {% endblock %}
+
