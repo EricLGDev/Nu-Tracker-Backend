@@ -59,19 +59,14 @@ def login():
 @bp.route("/dashboard", methods=["GET"])
 @jwt_required
 def dashboard():
-    # Get the identity of the user from the JWT token
+    # Get the current user's identity (their username)
     current_user = get_jwt_identity()
     
     # Find the user in the database
     user = User.query.filter_by(username=current_user).first()
     
-    # Check if the user exists
-    if user:
-        # Retrieve the user's calorie data
-        calorie_data = user.calorie_data
-        
-        # Return the calorie data and a success response
-        return jsonify({"calorie_data": calorie_data}), 200
-    else:
-        # Return an error response
-        return jsonify({"message": "User not found"}), 404
+    # Get the user's data from the CalorieIntake table
+    calorie_intake_data = user.calorie_intakes
+    
+    # Return the data in a JSON format
+    return jsonify([ci.to_dict() for ci in calorie_intake_data]), 200
