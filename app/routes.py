@@ -56,21 +56,16 @@ def login():
 #     BLACKLIST.add(jti)
 #     return jsonify({"message": "Successfully logged out"}), 200
 
-@bp.route("/dashboard", methods=["GET"])
-@jwt_required()
-def dashboard():
+@bp.route('/dashboard', methods=['GET'])
 
-    # Get the current user's identity (their username)
+@jwt_required()
+
+def get_user_data():
     current_user = get_jwt_identity()
-    
-    # Find the user in the database
     user = User.query.filter_by(username=current_user).first()
-    
-    # Get the user's data from the CalorieIntake table
-    calorie_intake_data = user.calorie_intakes
-    
-    # Return the data in a JSON format
-    return jsonify([ci.to_dict() for ci in calorie_intake_data]), 200
+    calorie_intakes = CalorieIntake.query.filter_by(user_id=user.id).all()
+
+    return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
 
 @bp.route("/add", methods=["POST"])
 @jwt_required()
