@@ -56,7 +56,7 @@ def login():
 #     BLACKLIST.add(jti)
 #     return jsonify({"message": "Successfully logged out"}), 200
 
-@bp.route('/dashboard', methods=['GET'])
+@bp.route('/diary', methods=['GET'])
 
 @jwt_required()
 
@@ -67,7 +67,7 @@ def get_user_data():
 
     return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
 
-@bp.route("/add", methods=["POST"])
+@bp.route("/diary", methods=["POST"])
 @jwt_required()
 def addmacros():
     current_user = get_jwt_identity()
@@ -89,3 +89,47 @@ def addmacros():
     db.session.commit()
     return jsonify({'message': 'worked'}), 201
     
+@bp.route('/diary/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_entry(id):
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        return jsonify({"message": "Invalid user"}), 401
+
+    entry = CalorieIntake.query.filter_by(id=id).first()
+    if not entry:
+        return jsonify({"message": "Invalid entry"}), 404
+
+    if entry.user_id != user.id:
+        return jsonify({"message": "Unauthorized access"}), 401
+
+    data = request.get_json()
+    entry.calories = data.get('calories')
+    entry.date = data.get('date')
+    entry.notes = data.get('notes')
+
+    try:
+        db.session.commit()
+        return jsonify({"message": "Entry updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
+
+@bp.route('/diary/<int:id>', methods=['DELETE'])
+@jwt_required
+def delete_calorie_intake(id):
+    user_id = get_jwt_identity()
+
+    calorie_intake = CalorieIntake.query.get(id)
+
+    if calorie_intake is None:
+        return jsonify({"error": "Calorie intake data with id {} does not exist".format(id)}), 404
+
+    if calorie_intake.user_id != user_id:
+        return jsonify({"error": "You do not have permission to delete this data"}), 403
+
+    db.session.delete(calorie_intake)
+    db.session.commit()
+
+    return jsonify({"message": "Calorie intake data with id {} has been deleted".format(id)}), 200
