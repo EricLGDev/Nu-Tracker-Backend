@@ -40,7 +40,7 @@ def login():
     # Check if the user exists and the password is correct
     if user and bcrypt.check_password_hash(user.password, password):
         # Create a JWT token for the user
-        access_token = create_access_token(identity=user.username)
+        access_token = create_access_token(identity=user.id)
 
         
         # Return the token and a success response
@@ -92,8 +92,8 @@ def addmacros():
 @bp.route('/diary/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_entry(id):
-    current_username = get_jwt_identity()
-    user = User.query.filter_by(username=current_username).first()
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -116,9 +116,10 @@ def update_entry(id):
         return jsonify({"message": str(e)}), 500
 
 @bp.route('/diary/<int:id>', methods=['DELETE'])
-@jwt_required
+@jwt_required()
 def delete_calorie_intake(id):
     user_id = get_jwt_identity()
+    print(user_id)
 
     calorie_intake = CalorieIntake.query.get(id)
 
