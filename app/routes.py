@@ -92,8 +92,8 @@ def addmacros():
 @bp.route('/diary/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_entry(id):
-    current_user = get_jwt_identity()
-    user = User.query.filter_by(id=current_user).first()
+    current_username = get_jwt_identity()
+    user = User.query.filter_by(username=current_username).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -107,7 +107,6 @@ def update_entry(id):
     data = request.get_json()
     entry.calories = data.get('calories')
     entry.date = data.get('date')
-    entry.notes = data.get('notes')
 
     try:
         db.session.commit()
