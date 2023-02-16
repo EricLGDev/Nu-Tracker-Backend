@@ -33,21 +33,30 @@ def login():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
-    
+    print("Username: ", username)
+    print("Password: ", password)
+
     # Find the user in the database
     user = User.query.filter_by(username=username).first()
-    
-    # Check if the user exists and the password is correct
-    if user and bcrypt.check_password_hash(user.password, password):
-        # Create a JWT token for the user
-        access_token = create_access_token(identity=user.id)
 
-        
-        # Return the token and a success response
-        return jsonify({"access_token": access_token}), 200
+    print("User: ", user)
+
+    # Check if the user exists and the password is correct
+    if user:
+        if bcrypt.check_password_hash(user.password, password):
+            # Create a JWT token for the user
+            access_token = create_access_token(identity=user.id)
+            print("Access token: ", access_token)
+
+            # Return the token and a success response
+            return jsonify({"access_token": access_token}), 200
+        else:
+            # Return an error response
+            return jsonify({"message": "Invalid password"}), 402
     else:
         # Return an error response
-        return jsonify({"message": "Invalid username or password"}), 401
+        return jsonify({"message": "User does not exist"}), 401
+
 
 # @bp.route("/logout", methods=["POST"])
 # @jwt_required
