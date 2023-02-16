@@ -1,9 +1,8 @@
 from flask import Flask
 from flask_migrate import Migrate
-from flask_cors import CORS
 from instance import Config
 from . import models, routes
-from .extensions import db, bcrypt, jwt
+from .extensions import db, bcrypt, jwt, cors
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +15,7 @@ def create_app():
     migrate = Migrate(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    cors.init_app(app)
     
     with app.app_context():
         db.create_all()
