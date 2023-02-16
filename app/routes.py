@@ -13,7 +13,7 @@ def register():
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    
+
     # Hash the user's password
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
     
