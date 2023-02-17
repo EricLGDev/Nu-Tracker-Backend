@@ -14,7 +14,7 @@ def register():
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    
+
     # Hash the user's password
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
     
@@ -34,46 +34,43 @@ def login():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
-    
+    print("Username: ", username)
+    print("Password: ", password)
+
     # Find the user in the database
     user = User.query.filter_by(username=username).first()
-    
-    # Check if the user exists and the password is correct
-    if user and bcrypt.check_password_hash(user.password, password):
-        # Create a JWT token for the user
-        access_token = create_access_token(identity=user.username)
 
-        
-        # Return the token and a success response
-        return jsonify({"access_token": access_token}), 200
+    print("User: ", user)
+
+    # Check if the user exists and the password is correct
+    if user:
+        if bcrypt.check_password_hash(user.password, password):
+            # Create a JWT token for the user
+            access_token = create_access_token(identity=user.id)
+            print("Access token: ", access_token)
+
+            # Return the token and a success response
+            return jsonify({"access_token": access_token}), 200
+        else:
+            # Return an error response
+            return jsonify({"message": "Invalid password"}), 402
     else:
         # Return an error response
-        return jsonify({"message": "Invalid username or password"}), 401
+        return jsonify({"message": "User does not exist"}), 401
 
-# @bp.route("/logout", methods=["POST"])
-# @jwt_required
-# def logout():
-#     jti = get_jwt_identity()
-#     BLACKLIST.add(jti)
-#     return jsonify({"message": "Successfully logged out"}), 200
 
-@bp.route("/dashboard", methods=["GET"])
+@bp.route('/diary', methods=['GET'])
+
 @jwt_required()
-def dashboard():
 
-    # Get the current user's identity (their username)
+def get_user_data():
     current_user = get_jwt_identity()
-    
-    # Find the user in the database
     user = User.query.filter_by(username=current_user).first()
-    
-    # Get the user's data from the CalorieIntake table
-    calorie_intake_data = user.calorie_intakes
-    
-    # Return the data in a JSON format
-    return jsonify([ci.to_dict() for ci in calorie_intake_data]), 200
+    calorie_intakes = CalorieIntake.query.filter_by(user_id=user.id).all()
 
-@bp.route("/add", methods=["POST"])
+    return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
+
+@bp.route("/diary", methods=["POST"])
 @jwt_required()
 def addmacros():
     current_user = get_jwt_identity()
@@ -95,23 +92,47 @@ def addmacros():
     db.session.commit()
     return jsonify({'message': 'worked'}), 201
     
-@bp.route("/update/<int:id>", methods=["POST", "GET"])
+@bp.route('/diary/<int:id>', methods=['PUT'])
 @jwt_required()
-def updatemacros():
+def update_entry(id):
     current_user = get_jwt_identity()
-    user = User.query.filter_by(username=current_user).first()
-    data = request.get_json()
-    food = data.get('food')
-    date = data.get('date')
-    calories = data.get('calories')
-    protein = data.get('protein')
-    carbohydrates = data.get('carbohydrates')
-    fat = data.get('fat')
-    sodium = data.get('sodium')
-    if not calories or not protein or not carbohydrates or not fat or not sodium:
-        return jsonify({'message': 'invalid data'}), 400
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        return jsonify({"message": "Invalid user"}), 401
 
-    edit_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat, sodium=sodium)
-    
-    db.session.commit(edit_food)
-    return jsonify({'message': 'worked'}), 201
+    entry = CalorieIntake.query.filter_by(id=id).first()
+    if not entry:
+        return jsonify({"message": "Invalid entry"}), 404
+
+    if entry.user_id != user.id:
+        return jsonify({"message": "Unauthorized access"}), 401
+
+    data = request.get_json()
+    entry.calories = data.get('calories')
+    entry.date = data.get('date')
+
+    try:
+        db.session.commit()
+        return jsonify({"message": "Entry updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
+
+@bp.route('/diary/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_calorie_intake(id):
+    user_id = get_jwt_identity()
+    print(user_id)
+
+    calorie_intake = CalorieIntake.query.get(id)
+
+    if calorie_intake is None:
+        return jsonify({"error": "Calorie intake data with id {} does not exist".format(id)}), 404
+
+    if calorie_intake.user_id != user_id:
+        return jsonify({"error": "You do not have permission to delete this data"}), 403
+
+    db.session.delete(calorie_intake)
+    db.session.commit()
+
+    return jsonify({"message": "Calorie intake data with id {} has been deleted".format(id)}), 200
