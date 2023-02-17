@@ -58,13 +58,6 @@ def login():
         return jsonify({"message": "User does not exist"}), 401
 
 
-# @bp.route("/logout", methods=["POST"])
-# @jwt_required
-# def logout():
-#     jti = get_jwt_identity()
-#     BLACKLIST.add(jti)
-#     return jsonify({"message": "Successfully logged out"}), 200
-
 @bp.route('/diary', methods=['GET'])
 
 @jwt_required()
