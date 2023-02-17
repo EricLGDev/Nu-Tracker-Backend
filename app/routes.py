@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from app.extensions import db, bcrypt, jwt
 from app.models import User, CalorieIntake
+
 # from app.utils import BLACKLIST
 
 bp = Blueprint("routes", __name__)
@@ -94,3 +95,23 @@ def addmacros():
     db.session.commit()
     return jsonify({'message': 'worked'}), 201
     
+@bp.route("/update/<int:id>", methods=["POST", "GET"])
+@jwt_required()
+def updatemacros():
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(username=current_user).first()
+    data = request.get_json()
+    food = data.get('food')
+    date = data.get('date')
+    calories = data.get('calories')
+    protein = data.get('protein')
+    carbohydrates = data.get('carbohydrates')
+    fat = data.get('fat')
+    sodium = data.get('sodium')
+    if not calories or not protein or not carbohydrates or not fat or not sodium:
+        return jsonify({'message': 'invalid data'}), 400
+
+    edit_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat, sodium=sodium)
+    
+    db.session.commit(edit_food)
+    return jsonify({'message': 'worked'}), 201
