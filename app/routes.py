@@ -1,10 +1,17 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect, url_for
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from app.extensions import db, bcrypt, jwt
 from app.models import User, CalorieIntake
 # from app.utils import BLACKLIST
 
 bp = Blueprint("routes", __name__)
+
+@bp.route("/")
+def index():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return 'Logged in as %s' % session['username']
+
 
 @bp.route("/signup", methods=["POST"])
 def register():
@@ -49,31 +56,36 @@ def login():
             print("Access token: ", access_token)
 
             # Return the token and a success response
-            return jsonify({"access_token": access_token}), 200
-        else:
-            # Return an error response
-            return jsonify({"message": "Invalid password"}), 402
+            return jsonify({
+            "access_token": access_token,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            }
+        }), 200
     else:
         # Return an error response
-        return jsonify({"message": "User does not exist"}), 401
+        return jsonify({"message": "Invalid username or password"}), 401
 
 
-@bp.route('/diary', methods=['GET'])
-
+@bp.route('/diary/<int:user_id>', methods=['GET'])
 @jwt_required()
-
-def get_user_data():
-    current_user = get_jwt_identity()
-    user = User.query.filter_by(username=current_user).first()
+def get_user_data(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    
     calorie_intakes = CalorieIntake.query.filter_by(user_id=user.id).all()
 
     return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
+
 
 @bp.route("/diary", methods=["POST"])
 @jwt_required()
 def addmacros():
     current_user = get_jwt_identity()
-    user = User.query.filter_by(username=current_user).first()
+    user = User.query.filter_by(id=current_user).first()
     data = request.get_json()
     food = data.get('food')
     date = data.get('date')
@@ -81,15 +93,14 @@ def addmacros():
     protein = data.get('protein')
     carbohydrates = data.get('carbohydrates')
     fat = data.get('fat')
-    sodium = data.get('sodium')
-    if not calories or not protein or not carbohydrates or not fat or not sodium:
+    if not calories or not protein or not carbohydrates or not fat:
         return jsonify({'message': 'invalid data'}), 400
 
-    new_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat, sodium=sodium)
+    new_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat)
     
     db.session.add(new_food)
     db.session.commit()
-    return jsonify({'message': 'worked'}), 201
+    return jsonify({'message': 'Entry added'}), 201
     
 @bp.route('/diary/<int:id>', methods=['PUT'])
 @jwt_required()
