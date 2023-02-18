@@ -56,25 +56,30 @@ def login():
             print("Access token: ", access_token)
 
             # Return the token and a success response
-            return jsonify({"access_token": access_token}), 200
-        else:
-            # Return an error response
-            return jsonify({"message": "Invalid password"}), 402
+            return jsonify({
+            "access_token": access_token,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            }
+        }), 200
     else:
         # Return an error response
-        return jsonify({"message": "User does not exist"}), 401
+        return jsonify({"message": "Invalid username or password"}), 401
 
 
-@bp.route('/diary', methods=['GET'])
-
+@bp.route('/diary/<int:user_id>', methods=['GET'])
 @jwt_required()
-
-def get_user_data():
-    current_user = get_jwt_identity()
-    user = User.query.filter_by(id=current_user).first()
+def get_user_data(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    
     calorie_intakes = CalorieIntake.query.filter_by(user_id=user.id).all()
 
     return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
+
 
 @bp.route("/diary", methods=["POST"])
 @jwt_required()
