@@ -1,10 +1,17 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session, redirect, url_for
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from app.extensions import db, bcrypt, jwt
 from app.models import User, CalorieIntake
 # from app.utils import BLACKLIST
 
 bp = Blueprint("routes", __name__)
+
+@bp.route("/")
+def index():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return 'Logged in as %s' % session['username']
+
 
 @bp.route("/signup", methods=["POST"])
 def register():
@@ -64,7 +71,7 @@ def login():
 
 def get_user_data():
     current_user = get_jwt_identity()
-    user = User.query.filter_by(username=current_user).first()
+    user = User.query.filter_by(id=current_user).first()
     calorie_intakes = CalorieIntake.query.filter_by(user_id=user.id).all()
 
     return jsonify([ci.to_dict() for ci in calorie_intakes]), 200
@@ -73,7 +80,7 @@ def get_user_data():
 @jwt_required()
 def addmacros():
     current_user = get_jwt_identity()
-    user = User.query.filter_by(username=current_user).first()
+    user = User.query.filter_by(id=current_user).first()
     data = request.get_json()
     food = data.get('food')
     date = data.get('date')
