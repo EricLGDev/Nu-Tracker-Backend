@@ -93,15 +93,14 @@ def addmacros():
     protein = data.get('protein')
     carbohydrates = data.get('carbohydrates')
     fat = data.get('fat')
-    sodium = data.get('sodium')
-    if not calories or not protein or not carbohydrates or not fat or not sodium:
+    if not calories or not protein or not carbohydrates or not fat:
         return jsonify({'message': 'invalid data'}), 400
 
-    new_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat, sodium=sodium)
+    new_food = CalorieIntake(user_id=user.id,food=food, date=date, calories=calories, protein=protein, carbohydrates=carbohydrates, fat=fat)
     
     db.session.add(new_food)
     db.session.commit()
-    return jsonify({'message': 'worked'}), 201
+    return jsonify({'message': 'Entry added'}), 201
     
 @bp.route('/diary/<int:id>', methods=['PUT'])
 @jwt_required()
