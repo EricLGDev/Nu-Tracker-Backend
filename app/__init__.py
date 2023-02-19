@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from instance import Config
-from . import models, routes
+from . import routes
 from .extensions import db, bcrypt, jwt, cors
 
 def create_app():
