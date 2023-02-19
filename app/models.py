@@ -1,7 +1,5 @@
-# from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from .extensions import db
-from flask_table import Table, Col, LinkCol
+
 
 class User(db.Model):
 
