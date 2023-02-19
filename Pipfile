@@ -15,6 +15,7 @@ flask-migrate = "*"
 flask-bcrypt = "*"
 flask-script = "*"
 flask-restful = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
