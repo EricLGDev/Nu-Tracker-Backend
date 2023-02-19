@@ -13,6 +13,7 @@ The entire application can be ran using
 The REST API to the app is described below.
 
 "user_id" = user id in the database
+
 "id" = references the specific diary entry in the database
 
 ## Signup to make an account
