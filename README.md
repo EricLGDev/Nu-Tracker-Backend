@@ -11,6 +11,7 @@ The entire application can be ran using
 # REST API
 
 The REST API to the app is described below.
+URL = https://nu-tracker-api.onrender.com
 
 "user_id" = user id in the database
 
